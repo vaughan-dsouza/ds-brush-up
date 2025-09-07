@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <chrono>
 using namespace std;
+using namespace std::chrono;
 
 // Utility function to print an array
 void printArray(const vector<int> &arr)
@@ -19,7 +21,7 @@ void bubbleSort(vector<int> &arr)
     for (int i = 0; i < n - 1; i++)
     {
         bool swapped = false;
-        for (int j = 0; j < n - i - 1; j++)
+        for (int j = 0; j < n - 1 - i; j++)
         {
             if (arr[j] > arr[j + 1])
             {
@@ -28,7 +30,7 @@ void bubbleSort(vector<int> &arr)
             }
         }
         if (!swapped)
-            break; // optimization: stop if already sorted
+            break;
     }
 }
 
@@ -40,8 +42,6 @@ void insertionSort(vector<int> &arr)
     {
         int key = arr[i];
         int j = i - 1;
-
-        // shift larger elements to the right
         while (j >= 0 && arr[j] > key)
         {
             arr[j + 1] = arr[j];
@@ -69,27 +69,71 @@ void selectionSort(vector<int> &arr)
     }
 }
 
+// Function to measure sorting time
+template <typename Func>
+void measureTime(Func sortFunction, vector<int> arr, const string &sortName)
+{
+    auto start = high_resolution_clock::now();
+    sortFunction(arr);
+    auto stop = high_resolution_clock::now();
+
+    auto duration = duration_cast<microseconds>(stop - start);
+
+    cout << sortName << " Result: ";
+    printArray(arr);
+    cout << sortName << " Time: " << duration.count() << " microseconds" << endl;
+}
+
 int main()
 {
-    vector<int> arr = {64, 25, 12, 22, 11};
+    // vector<int> arr = {64, 25, 12, 22, 11};
+    // srand(time(0));
+    srand(10);
 
-    // Bubble Sort
-    vector<int> bubbleArr = arr; // make a copy
-    bubbleSort(bubbleArr);
-    cout << "Bubble Sort: ";
-    printArray(bubbleArr);
+    int size = 10000;
+    vector<int> arr(size);
 
-    // Insertion Sort
-    vector<int> insertionArr = arr; // make a copy
-    insertionSort(insertionArr);
-    cout << "Insertion Sort: ";
-    printArray(insertionArr);
+    for (int i = 0; i < size; i++)
+        arr[i] = rand() % 100000;
 
-    // Selection Sort
-    vector<int> selectionArr = arr; // make a copy
-    selectionSort(selectionArr);
-    cout << "Selection Sort: ";
-    printArray(selectionArr);
+    cout << "Array of " << size << " elements generated.\n";
+
+    int choice;
+
+    do
+    {
+        cout << "\n--- Sorting Menu ---\n";
+        cout << "1. Bubble Sort\n";
+        cout << "2. Insertion Sort\n";
+        cout << "3. Selection Sort\n";
+        cout << "4. Run All & Compare\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            measureTime(bubbleSort, arr, "Bubble Sort");
+            break;
+        case 2:
+            measureTime(insertionSort, arr, "Insertion Sort");
+            break;
+        case 3:
+            measureTime(selectionSort, arr, "Selection Sort");
+            break;
+        case 4:
+            measureTime(bubbleSort, arr, "Bubble Sort");
+            measureTime(insertionSort, arr, "Insertion Sort");
+            measureTime(selectionSort, arr, "Selection Sort");
+            break;
+        case 5:
+            cout << "Exiting program..." << endl;
+            break;
+        default:
+            cout << "Invalid choice! Try again.\n";
+        }
+    } while (choice != 5);
 
     return 0;
 }
