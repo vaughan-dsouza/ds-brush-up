@@ -1,12 +1,12 @@
 console.log("Merge Sort Algorithm in JavaScript (Deno)");
 
-function mergeSort(arr) {
-    if (arr.length <= 1) return arr;
+function mergeSort(arr, start, end) {
+    const length = end - start;
+    if (length <= 1) return arr;
 
-    const mid = Math.floor(arr.length / 2);
-    const left = mergeSort(arr.slice(0, mid));
-    const right = mergeSort(arr.slice(mid));
-
+    const mid = Math.floor(length / 2);
+    const left = mergeSort(arr, start, start + mid);
+    const right = mergeSort(arr, start + mid, end);
     let i = 0, j = 0;
     const result = [];
 
@@ -23,7 +23,6 @@ function mergeSort(arr) {
             result.push(right[j++]);
         }
     }
-
     return result;
 }
 
@@ -37,13 +36,23 @@ const arr = [
     40,99,20,72,31,56,94,15,65,46,
     3,87,24,58,70,36,92,22,79,50
 ];
-console.log("Original:", arr);
 
+const ITER = 100000;
+let sink = 0;
+
+// 🔥 benchmark
 const start = performance.now();
-const sorted = mergeSort(arr);
+
+for (let i = 0; i < ITER; i++) {
+    const sorted = mergeSort(arr, 0, arr.length);
+    sink ^= sorted[i % sorted.length];
+}
+
 const end = performance.now();
 
-console.log("Sorted:", sorted);
+// results
+const totalNs = (end - start) * 1e6;
 
-const elapsedNs = (end - start) * 1e6;
-console.log(`Execution Time: ${elapsedNs.toFixed(0)} ns`);
+console.log(`Total Time: ${totalNs.toFixed(0)} ns`);
+console.log(`Avg Time : ${(totalNs / ITER).toFixed(0)} ns/run`);
+console.log("sink:", sink);

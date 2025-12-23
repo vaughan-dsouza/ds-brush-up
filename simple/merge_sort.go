@@ -5,14 +5,14 @@ import (
 	"time"
 )
 
-func merge_Sort(arr []int) []int {
-	if len(arr) <= 1 {
-		return arr
+func merge_Sort(arr []int, start int, end int) []int {
+	if end-start <= 1 {
+		return arr[start:end]
 	}
 
-	mid := len(arr) / 2
-	left := merge_Sort(arr[:mid])
-	right := merge_Sort(arr[mid:])
+	mid := (end - start) / 2
+	left := merge_Sort(arr, start, start+mid)
+	right := merge_Sort(arr, start+mid, end)
 
 	i, j := 0, 0
 	result := make([]int, 0, len(arr))
@@ -39,7 +39,7 @@ func merge_Sort(arr []int) []int {
 }
 
 func main() {
-	arr := []int{
+	base := []int{
 		73, 12, 88, 45, 6, 91, 34, 17, 59, 2,
 		84, 26, 67, 9, 53, 41, 98, 21, 75, 14,
 		62, 8, 90, 33, 57, 19, 86, 4, 48, 71,
@@ -50,11 +50,25 @@ func main() {
 		3, 87, 24, 58, 70, 36, 92, 22, 79, 50,
 	}
 
+	const ITER = 100000
+	sink := 0
+
+	// warm-up
+	tmp := merge_Sort(base, 0, len(base))
+	sink ^= tmp[0]
+
 	start := time.Now()
-	sorted := merge_Sort(arr)
+
+	for i := 0; i < ITER; i++ {
+		sorted := merge_Sort(base, 0, len(base))
+		sink ^= sorted[i%len(sorted)]
+	}
+
 	elapsed := time.Since(start)
+	totalNs := elapsed.Nanoseconds()
+	avgNs := totalNs / ITER
 
-	fmt.Println("Sorted:", sorted)
-	fmt.Println("Execution Time:", elapsed.Nanoseconds(), "ns")
-
+	fmt.Println("Total Time:", totalNs, "ns")
+	fmt.Println("Avg Time :", avgNs, "ns/run")
+	fmt.Println("sink:", sink)
 }

@@ -1,13 +1,13 @@
 import time
 
-def merge_sort(arr):
-    if len(arr) <= 1:
-        return arr
+def merge_sort(arr, start, end):
+    length = end - start
+    if length <= 1:
+        return arr[start:end]
 
-    mid = len(arr) // 2
-    left = merge_sort(arr[:mid])
-    right = merge_sort(arr[mid:])
-
+    mid = length // 2
+    left = merge_sort(arr, start, start + mid)
+    right = merge_sort(arr, start + mid, end)
     i = j = 0
     result = []
 
@@ -40,9 +40,25 @@ arr = [
     3,87,24,58,70,36,92,22,79,50
 ]
 
-start = time.perf_counter()
-sorted_arr = merge_sort(arr)
-end = time.perf_counter()
+ITER = 100000
+sink = 0
 
-print("Sorted:", sorted_arr)
-print(f"Execution Time: {(end - start) * 1e9:.2f} ns")
+# warm-up
+tmp = merge_sort(arr, 0, len(arr))
+sink ^= tmp[0]
+
+# benchmark (ns)
+start_ns = time.perf_counter_ns()
+
+for i in range(ITER):
+    sorted_arr = merge_sort(arr, 0, len(arr))
+    sink ^= sorted_arr[i % len(sorted_arr)]
+
+end_ns = time.perf_counter_ns()
+
+total_ns = end_ns - start_ns
+avg_ns = total_ns // ITER
+
+print(f"Total Time: {total_ns} ns")
+print(f"Avg Time : {avg_ns} ns/run")
+print("sink:", sink)
