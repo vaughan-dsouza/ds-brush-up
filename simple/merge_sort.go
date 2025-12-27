@@ -38,7 +38,7 @@ func merge_Sort(arr []int, start int, end int) []int {
 	return result
 }
 
-func main() {
+func main2() {
 	base := []int{
 		73, 12, 88, 45, 6, 91, 34, 17, 59, 2,
 		84, 26, 67, 9, 53, 41, 98, 21, 75, 14,
