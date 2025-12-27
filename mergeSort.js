@@ -40,17 +40,12 @@ const arr = [
 const ITER = 100000;
 let sink = 0;
 
-// 🔥 benchmark
 const start = performance.now();
-
 for (let i = 0; i < ITER; i++) {
     const sorted = mergeSort(arr, 0, arr.length);
     sink ^= sorted[i % sorted.length];
 }
-
 const end = performance.now();
-
-// results
 const totalNs = (end - start) * 1e6;
 
 console.log(`Total Time: ${totalNs.toFixed(0)} ns`);
