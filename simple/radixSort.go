@@ -5,41 +5,51 @@ import (
 	"time"
 )
 
-func quicksort(arr []int, start, end int) {
-	if start >= end {
+// RadixSort sorts non-negative integers using LSD radix sort (base 10)
+func radixSort(arr []int) {
+	n := len(arr)
+	if n <= 1 {
 		return
 	}
 
-	p := pivotPartition(arr, start, end)
-	quicksort(arr, start, p-1)
-	quicksort(arr, p+1, end)
-}
-
-func pivotPartition(arr []int, start, end int) int {
-	pivot := arr[start]
-	i := start + 1
-	j := end
-
-	for i <= j {
-		for i <= end && arr[i] < pivot {
-			i++
-		}
-		for j >= start+1 && arr[j] > pivot {
-			j--
-		}
-		if i <= j {
-			arr[i], arr[j] = arr[j], arr[i]
-			i++
-			j--
+	// Find max to know number of digits
+	max := arr[0]
+	for _, v := range arr {
+		if v > max {
+			max = v
 		}
 	}
 
-	// Put pivot into final position
-	arr[start], arr[j] = arr[j], arr[start]
-	return j
+	output := make([]int, n)
+
+	// exp = 1, 10, 100, ...
+	for exp := 1; max/exp > 0; exp *= 10 {
+		count := [10]int{}
+
+		// Counting occurrences
+		for i := 0; i < n; i++ {
+			digit := (arr[i] / exp) % 10
+			count[digit]++
+		}
+
+		// Prefix sums → positions
+		for i := 1; i < 10; i++ {
+			count[i] += count[i-1]
+		}
+
+		// Build output (stable, iterate backwards)
+		for i := n - 1; i >= 0; i-- {
+			digit := (arr[i] / exp) % 10
+			count[digit]--
+			output[count[digit]] = arr[i]
+		}
+
+		// Copy back
+		copy(arr, output)
+	}
 }
 
-func main3() {
+func main5() {
 	original := []int{
 		73, 12, 88, 45, 6, 91, 34, 17, 59, 2,
 		84, 26, 67, 9, 53, 41, 98, 21, 75, 14,
@@ -54,11 +64,11 @@ func main3() {
 	const ITER = 100000
 	sink := 0
 
-	// warm-up (use a copy so original stays unsorted)
+	// warm-up
 	{
 		arr := make([]int, len(original))
 		copy(arr, original)
-		quicksort(arr, 0, len(arr)-1)
+		radixSort(arr)
 		sink ^= arr[0]
 	}
 
@@ -67,8 +77,7 @@ func main3() {
 	for i := 0; i < ITER; i++ {
 		arr := make([]int, len(original))
 		copy(arr, original)
-
-		quicksort(arr, 0, len(arr)-1)
+		radixSort(arr)
 		sink ^= arr[i%len(arr)]
 	}
 
